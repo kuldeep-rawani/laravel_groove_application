@@ -18,7 +18,9 @@ class UpdateTicketCommandHandler implements CommandHandler
 		public function handle($command)
 		{
 		
-			$this->ticketRepository->updateticket($command);
+			$ticket = $this->ticketRepository->updateticket($command);
+
+			return $ticket;
 		}
 
 }

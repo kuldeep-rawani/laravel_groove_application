@@ -16,15 +16,17 @@ Route::get('/', function () {
 });
 
 // These are the Routes for TicketController
+
 Route::group(['prefix' => 'ticket'], function () {
 
+		
  		Route::post('create','TicketController@create');
-		Route::post('show','TicketController@show');
-		Route::post('update','TicketController@update');
-		Route::post('delete','TicketController@delete');
+		Route::get('show/{to}','TicketController@show');
+		Route::patch('update','TicketController@update');
+		Route::delete('delete','TicketController@delete');
 
 	    Route::post('getstatus/{state}','TicketController@getstatus');
-	    Route::post('ticketstatus','TicketController@updateticketstatus');
+	    Route::patch('updateticketstatus','TicketController@updateticketstatus');
 	    Route::post('search','TicketController@search');
 		Route::get('master','TicketController@status_master_table');
 

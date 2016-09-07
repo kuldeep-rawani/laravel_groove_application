@@ -14,14 +14,15 @@ class CreateUserTask extends Migration
     {
         //
         Schema::create('tasks', function (Blueprint $table) { 
-            
+            //$table->integer('user_id');
+            //$table->foreign('user_id')->reference('id')->on('users');
             $table->increments('task_id');
             $table->string('body');
             $table->string('subject');
             $table->string('author');
-            $table->string('to');
-            $table->string('assign_to');
-            $table->string('status_id');    
+            //$table->string('to');
+            //$table->string('assign_to');
+            $table->integer('status_id');    
             $table->softDeletes();          
             $table->timestamps();
         });

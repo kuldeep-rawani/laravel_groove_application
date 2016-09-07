@@ -18,7 +18,9 @@ class DeleteTicketCommandHandler implements CommandHandler
 
 		public function handle($command)
 		{
-			$this->ticketRepository->deleteticket($command);
+			$ticket = $this->ticketRepository->deleteticket($command);
+
+			return $ticket;
 		}
 
 }

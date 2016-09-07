@@ -10,13 +10,13 @@ class Task extends Model
 {
     use softDeletes;
    
-    protected $table='tasks';
+    protected $table = 'tasks';
    
-    protected $primaryKey='task_id';
+    protected $primaryKey = 'task_id';
 
-    protected $foreignKey='status_id';
+    protected $foreignKey = 'status_id';
    
-    protected $fillable=['body','subject','author','to','assign_to','status_id'];
+    protected $fillable = ['body','subject','author','to','assign_to','status_id'];
 
 
     public function status()

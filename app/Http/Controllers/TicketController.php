@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use Validator;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Platform\App\Commanding\DefaultCommandBus;
@@ -50,6 +51,79 @@ class TicketController extends Controller
         //
     }
 
+     
+
+
+     public function store(Request $request)
+    {
+
+        $this->validate($request,[
+             'First_Name'=>'required',
+             'Last_Name'=>'required',
+            'email'=>'required',
+            'Username'=>'required',
+              'Password'=>'required',
+              'ConfirmPassword'=>'required'
+
+              ]);
+        
+
+        if($request['ConfirmPassword']==$request['Password']) {
+        
+                $us=\App\User::create(['name'=>$request['Username'],
+                                     'password'=>bcrypt($request['Password']),
+                                      'email'=>$request['email']]);
+                $user_id=$us->id;
+
+                $data = ['user_id'=>$user_id,'First_Name'=>$request['First_Name'],
+                        'Last_Name'=>$request['Last_Name']];
+        
+                $li=\App\Lists::create($data);
+                
+                return view('after_registration');
+        
+
+        }
+
+        else {
+            
+            return view('password_page');
+        
+        }
+        //DB::table('users')->insert($us);
+        //return make::('users',compact($us));
+
+        
+         
+    }
+
+
+    public function login(Request $request)
+    {
+
+        $this->validate($request,[
+             'email'=>'required',
+             'password'=>'required'
+            ]);
+        
+        $data = ['name'=>$request['name'],
+        'password'=>$request['password']];
+        
+        if(Auth::attempt($data)) {
+             
+             return view('after_login');
+         
+         }
+        
+        else {
+            
+            return redirect()->back()->with('error','something went wrong');
+        
+        }
+
+     }
+
+
     /**
      * Show the form for creating a new resource.
      *
@@ -57,24 +131,31 @@ class TicketController extends Controller
      */
     public function create(Request $request)
     {
-    
-         $ticket = $this->commandBus->execute(new CreateTicketCommand($request->all()));
-         $status_id = $ticket['status_id'];
-         $status = $ticket['status'];
-         if ($ticket){
+         $this->validate($request, [
+        // 'to' => 'required|email',
+        'body' => 'required',
+        ]);
+        
 
-            $this->commandBus->execute(new CreateStatusCommand($status_id,$status));
+         $ticket = $this->commandBus->execute(new CreateTicketCommand($request->all()));
+
+         return $ticket;
+         // $status_id = $ticket['status_id'];
+         // $status = $ticket['status'];
+         // if ($ticket){
+
+         //    $this->commandBus->execute(new CreateStatusCommand($status_id,$status));
          
-         }
+         // }
 
 
          
     }
 
 
-    public function show(Request $request)
+    public function show($to)
     {
-          $ticket = $this->commandBus->execute(new ShowTicketCommand($request->all()));
+          $ticket = $this->commandBus->execute(new ShowTicketCommand($to));
     
 
          if (!$ticket->isEmpty()){
@@ -85,7 +166,7 @@ class TicketController extends Controller
 
          else {
 
-            echo "No Tickets";
+            return "No Tickets";
          }
 
     }
@@ -93,7 +174,9 @@ class TicketController extends Controller
 
     public function update(Request $request)
     {
-        $this->commandBus->execute(new UpdateTicketCommand($request->all()));
+        $ticket = $this->commandBus->execute(new UpdateTicketCommand($request->all()));
+        
+        return $ticket;
     
     }
 
@@ -101,33 +184,51 @@ class TicketController extends Controller
     public function delete(Request $request)
     {
 
-        $this->commandBus->execute(new DeleteTicketCommand($request->all()));
+        $ticket = $this->commandBus->execute(new DeleteTicketCommand($request->all()));
+
+        if ($ticket) {
+
+            return "ticket successfully deleted";
+        
+        }
 
     }
 
     public function getstatus(Request $request,$status)
     {
-        $ticket = $this->commandBus->execute(new StatusTicketCommand($request->all(),$status));
+        $status_id = $request['status_id'];
 
-        if (!$ticket->isEmpty()){
+        if($status_id > 0 && $status_id < 4) {
+
+                $ticket = $this->commandBus->execute(new StatusTicketCommand($request->all(),$status));
+
+                if (!$ticket->isEmpty()){
        
-            return $ticket;
+                        return $ticket;
 
-         }
+                }
 
-         else {
+             else {
 
-            echo "No Tickets";
-         }
+                return "No Tickets";
+            }
 
     }
+    else {
+
+           return "not a valid status_id";    
+    
+    }
+
+  
+   }
 
     public function updateticketstatus(Request $request)
     {
 
-        $this->commandBus->execute(new UpdateTicketStatusCommand($request->all()));
+        $status = $this->commandBus->execute(new UpdateTicketStatusCommand($request->all()));
 
-        return 1;
+        return $status;
 
     }
 
@@ -158,11 +259,7 @@ class TicketController extends Controller
     }
 
 
-    public function store(Request $request)
-    {
-        //
-    }
-
+   
     /**
      * Display the specified resource.
      *

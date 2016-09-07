@@ -8,10 +8,10 @@ class ShowTicketCommand
 	public $to;
 
 
-	public function __construct($data)
+	public function __construct($to)
 	{
 
-	   $this->to = $data['to'];	
+	   $this->to = $to;	
 
 	}
 

@@ -8,13 +8,13 @@ class CreateTicketCommand
 
 	public $subject;
 
-	public $to;
+	public $to = [];
 
 	public $status;
 
 	public $author;
 
-	public $assign_to;
+	//public $assign_to;
 
    public $status_id;
 
@@ -22,13 +22,13 @@ class CreateTicketCommand
 
    public function __construct($data)
    {
-         
+         //dd($command);
    	 	$this->body = $data['body'];
    	 	$this->subject = $data['subject'];
    	 	$this->to = $data['to'];
    	 	$this->status = $data['status'];
    	 	$this->author = $data['author'];
-   	 	$this->assign_to = $data['assign_to'];
+   	 	//$this->assign_to = $data['assign_to'];
          $this->status_id = $data['status_id'];
 
    }

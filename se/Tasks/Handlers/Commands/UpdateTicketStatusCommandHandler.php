@@ -21,9 +21,9 @@ class UpdateTicketStatusCommandHandler implements CommandHandler
 		public function handle($command)
 		{
 
-			$ticket = $this->ticketRepository->updateticketstatus($command);
+			$status = $this->ticketRepository->updateticketstatus($command);
 
-			return 1;
+			return $status;
 		}
 
 

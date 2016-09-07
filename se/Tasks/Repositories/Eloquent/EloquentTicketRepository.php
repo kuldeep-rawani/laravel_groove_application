@@ -12,18 +12,30 @@ class EloquentTicketRepository implements TicketRepository
     
    }
 
-  public function newticket($command)
-  {   
-                           
-                      
-  	 $ticket = \App\Task::create(['body'=>$command->body,
-   		                                'to'=>$command->to,
+   public function newticket($command)
+   {   
+              
+  	   $ticket = \App\Task::create(['body'=>$command->body,
                                   'subject'=>$command->subject,
                                    'author'=>$command->author,
-                                   'assign_to'=>$command->assign_to,
                                    'status_id'=>$command->status_id
                     
                                 ]);
+
+          $count = count($command->to);
+
+           for($x = 0; $x<=$count-1; $x++) {
+
+                  $receiver_mail_id = \App\Receiver_mail_id::create(['task_id'=>$ticket->task_id,
+                                                              'email'=>$command->to[$x]
+                                                             ]);
+      
+          }
+      
+
+      
+
+      return $ticket;
       
 
   }
@@ -40,7 +52,7 @@ class EloquentTicketRepository implements TicketRepository
           $to = $command->to;
           $ticket = \App\Task::where('to',$to)
                               ->orderBy('task_id','desc')
-                              ->simplePaginate(2);
+                              ->simplePaginate(1);
 
            
            return $ticket;
@@ -59,16 +71,23 @@ class EloquentTicketRepository implements TicketRepository
         $ticket = \App\Task::where('task_id',$task_id)
                              ->where('author',$author)
                              ->update(['body'=>$body]);
-            
+      
+        $get_updated_ticket =  \App\Task::where('task_id',$task_id)
+                                         ->where('author',$author)
+                                         ->get();
+
+         return $get_updated_ticket;   
 
   }
 
 
   public function deleteticket($command)
   {
-    $task_id = $command->task_id;
-    $ticket = \App\Task::where('task_id',$task_id)
-                        ->delete();    
+      $task_id = $command->task_id;
+      $ticket = \App\Task::where('task_id',$task_id)
+                        ->delete();
+
+      return $ticket;                       
 
 
   }
@@ -80,13 +99,14 @@ class EloquentTicketRepository implements TicketRepository
         $to = $command->to;
         $status_id = $command->status_id;
 
-        $status = \App\Task::where('to',$to)
-                              ->where('status_id',$status_id) 
-                              ->paginate(15);
-        return $status;               
-                                          
+                $status = \App\Task::where('to',$to)
+                                    ->where('status_id',$status_id) 
+                                    ->paginate(15);
+                
+                return $status;               
+                                    
 
-   }
+}
 
    public function updateticketstatus($command)
    {
@@ -99,22 +119,26 @@ class EloquentTicketRepository implements TicketRepository
                             ->where('to',$to)
                             ->update(['status_id'=>$status_id]); 
 
-         return 1;                     
+         $get_updated_ticket = \App\Task::where('task_id',$task_id)
+                                         ->where('to',$to)
+                                         ->get();                     
 
+         return $get_updated_ticket;                                      
+   
    } 
 
    public function ticketsearch($command)
    {
 
-      $word = $command->word;
+        $word = $command->word;
 
-      $body = \App\Task::where('body','like',$word.'%')->get();
+        $body = \App\Task::where('body','ilike',$word.'%')->get();
       
-      $author = \App\Task::where('author','like',$word.'%')->get();
+        $author = \App\Task::where('author','ilike',$word.'%')->get();
 
-      $to = \App\Task::where('to','like',$word.'%')->get();
+        $to = \App\Task::where('to','ilike',$word.'%')->get();
 
-      $status = \App\Task::where('status_id',$word)->get();
+        //$status = \App\Task::where('status_id',$word)->get();
 
 
          if (!$body->isEmpty()) {
@@ -133,16 +157,16 @@ class EloquentTicketRepository implements TicketRepository
          
          }
 
-          elseif (!$status->isEmpty()) {
+          //elseif (!$status->isEmpty()) {
             
-             return $status;
+            // return $status;
          
-         }
+        // }
 
 
          else {
             
-            echo "No match found"; 
+            return "No match found"; 
 
          }
          
